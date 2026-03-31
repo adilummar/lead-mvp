@@ -126,5 +126,28 @@
   }
   html {
     @apply font-sans;
+    -webkit-text-size-adjust: 100%;
   }
+}
+
+/* Safe area for iOS notch / home indicator */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Smooth momentum scrolling on iOS */
+.overflow-y-auto, .overflow-auto {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Prevent horizontal overflow on mobile */
+body {
+  overflow-x: hidden;
+}
+
+/* Touch target minimum sizing */
+a, button, [role="button"] {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
 }
