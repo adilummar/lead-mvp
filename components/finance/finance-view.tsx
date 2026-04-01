@@ -76,7 +76,7 @@ function AddExpenseModal({ projects }: { projects: any[] }) {
         <div className="space-y-4">
           <div className="space-y-1.5">
             <Label>Project</Label>
-            <Select value={projectId} onValueChange={setProjectId}>
+            <Select value={projectId} onValueChange={(val) => setProjectId(val || "")}>
               <SelectTrigger className="rounded-xl h-11"><SelectValue placeholder="Select project..." /></SelectTrigger>
               <SelectContent>
                 {projects.map((p: any) => (

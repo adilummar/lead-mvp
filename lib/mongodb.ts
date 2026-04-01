@@ -12,12 +12,29 @@ async function dbConnect() {
   }
 
   if (!cached.promise) {
-    const uri = process.env.MONGODB_URI;
+    let uri = process.env.MONGODB_URI;
 
     if (!uri) {
       throw new Error(
         "Please define the MONGODB_URI environment variable in .env.local"
       );
+    }
+
+    // In-memory MongoDB for local zero-config development
+    if (uri === "auto") {
+      try {
+        const { MongoMemoryServer } = await import("mongodb-memory-server");
+        if (!(global as any).mongoServer) {
+          console.log("🚀 Starting in-memory MongoDB...");
+          const mongoServer = await MongoMemoryServer.create();
+          (global as any).mongoServer = mongoServer;
+        }
+        uri = (global as any).mongoServer.getUri();
+        console.log("🎯 In-memory DB URI:", uri);
+      } catch (err) {
+        console.error("❌ Failed to start in-memory MongoDB:", err);
+        throw err;
+      }
     }
 
     const opts = { bufferCommands: false };
