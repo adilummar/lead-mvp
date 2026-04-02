@@ -145,8 +145,17 @@ body {
   overflow-x: hidden;
 }
 
-/* Touch target minimum sizing */
-a, button, [role="button"] {
+/* Hide scrollbar on mobile nav scroll container */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Touch target minimum sizing — exclude nav pills */
+a:not(.nav-pill), button, [role="button"] {
   min-height: 44px;
   display: inline-flex;
   align-items: center;
