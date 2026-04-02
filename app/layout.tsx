@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import QueryProvider from "@/components/providers/QueryProvider";
-import Link from "next/link";
-import { LayoutDashboard, Users, Briefcase, Target, CheckSquare, Layers, DollarSign } from "lucide-react";
+import { DesktopNav, MobileNav } from "@/components/ui/nav-links";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -11,25 +10,6 @@ export const metadata: Metadata = {
   title: "B-BMS | B & Beyond Management System",
   description: "Internal ERP/CRM for B & Beyond",
 };
-
-const navItems = [
-  { href: "/",         label: "Dashboard",   icon: LayoutDashboard },
-  { href: "/overview", label: "Overview",    icon: Layers },
-  { href: "/leads",    label: "Leads",       icon: Users },
-  { href: "/projects", label: "Projects",    icon: Briefcase },
-  { href: "/goals",    label: "Goals",       icon: Target },
-  { href: "/finance",  label: "Finance",     icon: DollarSign },
-  { href: "/todos",    label: "My Day",      icon: CheckSquare },
-];
-
-// Bottom nav shows only 5 most important on mobile
-const mobileNavItems = [
-  { href: "/",         label: "Home",      icon: LayoutDashboard },
-  { href: "/overview", label: "Overview",  icon: Layers },
-  { href: "/leads",    label: "Leads",     icon: Users },
-  { href: "/finance",  label: "Finance",   icon: DollarSign },
-  { href: "/todos",    label: "My Day",    icon: CheckSquare },
-];
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -45,18 +25,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <span className="ml-2 text-xs text-gray-400 font-medium">v1.0</span>
               </div>
 
-              <nav className="flex-1 p-4 flex flex-col gap-1 overflow-y-auto">
-                {navItems.map(({ href, label, icon: Icon }) => (
-                  <Link
-                    key={href}
-                    href={href}
-                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-blue-600 dark:hover:text-blue-400 transition-all group whitespace-nowrap"
-                  >
-                    <Icon size={18} className="shrink-0 group-hover:text-blue-600 transition-colors" />
-                    {label}
-                  </Link>
-                ))}
-              </nav>
+              {/* Active-aware desktop nav */}
+              <DesktopNav />
 
               <div className="p-4 border-t border-gray-100 dark:border-gray-800">
                 <div className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
@@ -83,19 +53,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 {children}
               </main>
 
-              {/* ── Mobile bottom nav ── */}
-              <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 flex items-stretch safe-area-bottom">
-                {mobileNavItems.map(({ href, label, icon: Icon }) => (
-                  <Link
-                    key={href}
-                    href={href}
-                    className="flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                  >
-                    <Icon size={20} />
-                    <span className="text-[10px] font-semibold leading-none">{label}</span>
-                  </Link>
-                ))}
-              </nav>
+              {/* Active-aware mobile bottom nav (includes Projects) */}
+              <MobileNav />
 
             </div>
           </div>
