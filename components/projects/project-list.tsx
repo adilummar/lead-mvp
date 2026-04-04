@@ -26,7 +26,7 @@ const projectSchema = z.object({
 type ProjectFormData = z.infer<typeof projectSchema>;
 
 const statusColors: Record<string, string> = {
-  "Planned": "bg-blue-100 text-blue-700 border-blue-200",
+  "Planned": "bg-green-100 text-green-700 border-green-200",
   "In-Progress": "bg-purple-100 text-purple-700 border-purple-200",
   "Testing": "bg-yellow-100 text-yellow-700 border-yellow-200",
   "Completed": "bg-green-100 text-green-700 border-green-200",
@@ -102,7 +102,7 @@ function ProjectForm({ onSuccess, initialData, projectId }: { onSuccess: () => v
           <div className="space-y-1.5"><Label>Paid (₹)</Label><Input type="number" className="rounded-xl h-11" {...register("amountPaid", { valueAsNumber: true })} /></div>
         </div>
         <div className="pt-2">
-          <Button type="submit" disabled={mutation.isPending} className="w-full h-11 rounded-xl bg-blue-600 hover:bg-blue-700 font-semibold text-base">
+          <Button type="submit" disabled={mutation.isPending} className="w-full h-11 rounded-xl bg-green-600 hover:bg-green-700 font-semibold text-base">
             {mutation.isPending ? "Saving..." : isEdit ? "Update Project" : "Create Project"}
           </Button>
         </div>
@@ -127,7 +127,7 @@ export default function ProjectList() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["projects"] })
   });
 
-  if (isLoading) return <div className="flex flex-col items-center justify-center py-24 gap-4"><div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" /><p className="text-gray-500 animate-pulse">Loading projects...</p></div>;
+  if (isLoading) return <div className="flex flex-col items-center justify-center py-24 gap-4"><div className="w-10 h-10 border-4 border-green-600 border-t-transparent rounded-full animate-spin" /><p className="text-gray-500 animate-pulse">Loading projects...</p></div>;
   if (error) return <div className="p-8 text-center rounded-2xl border border-red-100 bg-red-50"><AlertCircle className="w-10 h-10 text-red-500 mx-auto mb-3" /><h3 className="text-base font-bold text-red-800">Connection Error</h3><p className="text-sm text-red-600">Restart npm run dev.</p></div>;
 
   return (
@@ -138,7 +138,7 @@ export default function ProjectList() {
           <p className="text-gray-500 text-sm sm:text-base mt-1">Track budget, status, and deliverables.</p>
         </div>
         <Dialog open={isFormOpen} onOpenChange={(o) => { setIsFormOpen(o); if (!o) setEditingProject(null); }}>
-          <DialogTrigger onClick={() => { setEditingProject(null); setIsFormOpen(true); }} className="shrink-0 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl px-4 h-10 text-sm font-semibold shadow-md inline-flex items-center gap-1.5">
+          <DialogTrigger onClick={() => { setEditingProject(null); setIsFormOpen(true); }} className="shrink-0 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl px-4 h-10 text-sm font-semibold shadow-md inline-flex items-center gap-1.5">
             <Plus className="h-4 w-4" /><span className="hidden sm:inline">New Project</span><span className="sm:hidden">New</span>
           </DialogTrigger>
           <DialogContent className="w-[calc(100%-2rem)] sm:max-w-[500px] rounded-2xl border-none shadow-2xl p-5 sm:p-6">
@@ -165,7 +165,7 @@ export default function ProjectList() {
             const paidPct = p.totalBudget > 0 ? Math.min(100, Math.round((p.amountPaid / p.totalBudget) * 100)) : 0;
             return (
               <div key={p._id} className="group flex flex-col p-5 rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm hover:shadow-lg active:scale-[0.99] transition-all duration-300 relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-green-500 to-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity" />
                 <div className="flex justify-between items-start mb-3 gap-2">
                   <h3 className="font-bold text-base text-gray-900 dark:text-white line-clamp-2 flex-1">{p.title}</h3>
                   <Badge variant="outline" className={`shrink-0 text-xs font-semibold rounded-full border px-2.5 ${statusColors[p.status] || ""}`}>{p.status}</Badge>
@@ -190,7 +190,7 @@ export default function ProjectList() {
                         <ProjectSubtasks project={p} />
                       </DialogContent>
                     </Dialog>
-                    <button onClick={() => { setEditingProject(p); setIsFormOpen(true); }} className="p-1.5 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors" title="Edit"><Pencil className="w-4 h-4" /></button>
+                    <button onClick={() => { setEditingProject(p); setIsFormOpen(true); }} className="p-1.5 rounded-lg text-gray-400 hover:text-green-700 hover:bg-green-50 transition-colors" title="Edit"><Pencil className="w-4 h-4" /></button>
                     <button onClick={() => { if (window.confirm(`Delete project "${p.title}"?`)) deleteMutation.mutate(p._id); }} className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors" title="Delete"><Trash2 className="w-4 h-4" /></button>
                   </div>
                 </div>

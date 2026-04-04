@@ -41,20 +41,20 @@ export function DesktopNav() {
             className={cn(
               "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all group whitespace-nowrap",
               active
-                ? "bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400"
-                : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-blue-600 dark:hover:text-blue-400"
+                ? "bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400"
+                : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-green-700 dark:hover:text-green-400"
             )}
           >
             <Icon
               size={18}
               className={cn(
                 "shrink-0 transition-colors",
-                active ? "text-blue-600 dark:text-blue-400" : "group-hover:text-blue-600"
+                active ? "text-green-700 dark:text-green-400" : "group-hover:text-green-700"
               )}
             />
             <span>{label}</span>
             {active && (
-              <span className="ml-auto w-1.5 h-5 rounded-full bg-blue-600 dark:bg-blue-400" />
+              <span className="ml-auto w-1.5 h-5 rounded-full bg-green-600 dark:bg-green-400" />
             )}
           </Link>
         );
@@ -104,7 +104,7 @@ export function MobileNav() {
                 className={cn(
                   "flex items-center gap-2 px-4 py-2.5 rounded-full whitespace-nowrap transition-all duration-200 shrink-0",
                   active
-                    ? "bg-blue-600 text-white shadow-md shadow-blue-500/30 scale-105"
+                    ? "bg-green-600 text-white shadow-md shadow-green-500/30 scale-105"
                     : "text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-200"
                 )}
               >

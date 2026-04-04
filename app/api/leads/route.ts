@@ -18,11 +18,11 @@ export async function POST(req: Request) {
     await dbConnect();
     const body = await req.json();
     
-    let user = await User.findOne({ email: "admin@b-bms.com" });
+    let user = await User.findOne({ email: "admin@bandb.com" });
     if (!user) {
       user = await User.create({
         name: "Admin User",
-        email: "admin@b-bms.com",
+        email: "admin@bandb.com",
         role: "Admin"
       });
     }

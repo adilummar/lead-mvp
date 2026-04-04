@@ -49,7 +49,7 @@ export default function DashboardView() {
 
   if (isLoading) return (
     <div className="flex flex-col items-center justify-center py-24 gap-4">
-      <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+      <div className="w-10 h-10 border-4 border-green-600 border-t-transparent rounded-full animate-spin" />
       <p className="text-gray-500 animate-pulse">Loading dashboard...</p>
     </div>
   );
@@ -71,10 +71,10 @@ export default function DashboardView() {
 
       {/* Stats — 2 cols on mobile, 4 on desktop */}
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-5">
-        <StatCard icon={Users}     label="Total Leads"        value={stats?.totalLeads ?? 0}           sub={`${stats?.closedLeads ?? 0} closed`}         color="bg-blue-500" />
-        <StatCard icon={TrendingUp} label="Conversion"        value={`${stats?.conversionRate ?? 0}%`} sub="Leads → Closed"                               color="bg-indigo-500" />
-        <StatCard icon={Briefcase} label="Projects"           value={stats?.totalProjects ?? 0}        sub={`${stats?.completedProjects ?? 0} completed`}  color="bg-purple-500" />
-        <StatCard icon={DollarSign} label="Revenue"           value={`₹${(stats?.totalRevenue ?? 0).toLocaleString("en-IN")}`} sub={`₹${(stats?.totalOutstanding ?? 0).toLocaleString("en-IN")} pending`} color="bg-green-500" />
+        <StatCard icon={Users}     label="Total Leads"        value={stats?.totalLeads ?? 0}           sub={`${stats?.closedLeads ?? 0} closed`}         color="bg-green-600" />
+        <StatCard icon={TrendingUp} label="Conversion"        value={`${stats?.conversionRate ?? 0}%`} sub="Leads → Closed"                               color="bg-emerald-500" />
+        <StatCard icon={Briefcase} label="Projects"           value={stats?.totalProjects ?? 0}        sub={`${stats?.completedProjects ?? 0} completed`}  color="bg-teal-500" />
+        <StatCard icon={DollarSign} label="Revenue"           value={`₹${(stats?.totalRevenue ?? 0).toLocaleString("en-IN")}`} sub={`₹${(stats?.totalOutstanding ?? 0).toLocaleString("en-IN")} pending`} color="bg-green-700" />
       </div>
 
       {/* Chart + Today's Todos — stack on mobile */}
@@ -92,11 +92,11 @@ export default function DashboardView() {
                   contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 4px 24px rgba(0,0,0,0.10)", fontSize: 13 }}
                   cursor={{ fill: "#f3f4f6", radius: 8 }}
                 />
-                <Bar dataKey="leads" fill="url(#blueGrad)" radius={[8, 8, 0, 0]} />
+                <Bar dataKey="leads" fill="url(#greenGrad)" radius={[8, 8, 0, 0]} />
                 <defs>
-                  <linearGradient id="blueGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#3b82f6" />
-                    <stop offset="100%" stopColor="#6366f1" />
+                  <linearGradient id="greenGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#16a34a" />
+                    <stop offset="100%" stopColor="#059669" />
                   </linearGradient>
                 </defs>
               </BarChart>
@@ -140,14 +140,14 @@ export default function DashboardView() {
       {/* Goals summary */}
       <div className="p-4 sm:p-6 rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm">
         <h2 className="text-base sm:text-lg font-bold flex items-center gap-2">
-          <Target className="w-5 h-5 text-indigo-500 shrink-0" />
+          <Target className="w-5 h-5 text-green-600 shrink-0" />
           Company Goals
           <span className="ml-auto text-sm text-gray-400 font-normal">{stats?.goals ?? 0} active</span>
         </h2>
         <p className="text-sm text-gray-500 mt-2">
           {(stats?.goals ?? 0) === 0
-            ? <><a href="/goals" className="text-blue-600 hover:underline">Add your first goal →</a></>
-            : <>{stats.goals} goal{stats.goals !== 1 ? "s" : ""} active. <a href="/goals" className="text-blue-600 hover:underline">View all →</a></>
+            ? <><a href="/goals" className="text-green-600 hover:underline">Add your first goal →</a></>
+            : <>{stats.goals} goal{stats.goals !== 1 ? "s" : ""} active. <a href="/goals" className="text-green-600 hover:underline">View all →</a></>
           }
         </p>
       </div>

@@ -12,7 +12,7 @@ import LeadSubtasks from "./lead-subtasks";
 
 const getStatusColor = (s: string) => {
   switch (s) {
-    case 'New': return 'bg-blue-100 text-blue-700 border-blue-200';
+    case 'New': return 'bg-green-100 text-green-700 border-green-200';
     case 'Contacted': return 'bg-purple-100 text-purple-700 border-purple-200';
     case 'Proposal': return 'bg-yellow-100 text-yellow-700 border-yellow-200';
     case 'Negotiation': return 'bg-orange-100 text-orange-700 border-orange-200';
@@ -60,7 +60,7 @@ export default function LeadList() {
 
   if (isLoading) return (
     <div className="flex flex-col items-center justify-center py-24 gap-4">
-      <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+      <div className="w-10 h-10 border-4 border-green-600 border-t-transparent rounded-full animate-spin" />
       <p className="text-gray-500 animate-pulse">Loading leads...</p>
     </div>
   );
@@ -82,7 +82,7 @@ export default function LeadList() {
           <p className="text-gray-500 text-sm sm:text-base mt-1">Manage prospects and convert them to projects.</p>
         </div>
         <Dialog open={isFormOpen} onOpenChange={(o) => { setIsFormOpen(o); if (!o) setEditingLead(null); }}>
-          <DialogTrigger onClick={() => { setEditingLead(null); setIsFormOpen(true); }} className="shrink-0 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl px-4 h-10 text-sm font-semibold shadow-md inline-flex items-center gap-1.5">
+          <DialogTrigger onClick={() => { setEditingLead(null); setIsFormOpen(true); }} className="shrink-0 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-xl px-4 h-10 text-sm font-semibold shadow-md inline-flex items-center gap-1.5">
             <Plus className="h-4 w-4" /><span className="hidden sm:inline">Add Lead</span><span className="sm:hidden">Add</span>
           </DialogTrigger>
           <DialogContent className="w-[calc(100%-2rem)] sm:max-w-[480px] rounded-2xl p-5 sm:p-6 border-none shadow-2xl">
@@ -106,7 +106,7 @@ export default function LeadList() {
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 sm:gap-6">
           {leads.map((lead: any) => (
             <div key={lead._id} className="group flex flex-col justify-between p-5 rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm hover:shadow-lg active:scale-[0.99] transition-all duration-300 relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-blue-500 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-green-500 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
               <div>
                 <div className="flex justify-between items-start mb-3 gap-2">
@@ -114,7 +114,7 @@ export default function LeadList() {
                   <Badge variant="outline" className={`shrink-0 px-2 py-0.5 text-xs font-semibold rounded-full border ${getStatusColor(lead.status)}`}>{lead.status}</Badge>
                 </div>
                 <div className="flex items-center text-gray-500 text-sm mb-3">
-                  <Phone className="w-4 h-4 mr-2 text-blue-500 shrink-0" />
+                  <Phone className="w-4 h-4 mr-2 text-green-600 shrink-0" />
                   <span className="truncate">{lead.contactNumber}</span>
                 </div>
                 {lead.remarks && (
@@ -132,7 +132,7 @@ export default function LeadList() {
                     {/* Edit */}
                     <button
                       onClick={() => { setEditingLead(lead); setIsFormOpen(true); }}
-                      className="p-1.5 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                      className="p-1.5 rounded-lg text-gray-400 hover:text-green-700 hover:bg-green-50 transition-colors"
                       title="Edit lead"
                     >
                       <Pencil className="w-4 h-4" />
@@ -147,7 +147,7 @@ export default function LeadList() {
                     </button>
                     {/* Tasks */}
                     <Dialog>
-                      <DialogTrigger className="text-blue-600 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors">
+                      <DialogTrigger className="text-green-700 bg-green-50 hover:bg-green-100 px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors">
                         <ListTodo className="h-3.5 w-3.5" /> Tasks
                       </DialogTrigger>
                       <DialogContent className="w-[calc(100%-2rem)] sm:max-w-[600px] rounded-2xl border-none shadow-2xl p-5 sm:p-6">

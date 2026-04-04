@@ -6,7 +6,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   Legend, ResponsiveContainer, LineChart, Line, Area, AreaChart
 } from "recharts";
-import { TrendingUp, TrendingDown, DollarSign, AlertCircle, Wallet, PiggyBank, Plus, ChevronDown, ChevronRight, Trash2, ReceiptText } from "lucide-react";
+import { TrendingUp, TrendingDown, DollarSign, AlertCircle, Wallet, Banknote, Plus, ChevronDown, ChevronRight, Trash2, ReceiptText } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,14 +24,15 @@ const paymentColors: Record<string, string> = {
 };
 
 // ── Stat Card ──────────────────────────────────────────
-function StatCard({ label, value, sub, icon: Icon, color, trend }: {
-  label: string; value: string; sub?: string; icon: any; color: string; trend?: "up" | "down" | "neutral";
+function StatCard({ label, value, sub, icon: Icon, iconBg, iconColor, trend }: {
+  label: string; value: string; sub?: string; icon: any;
+  iconBg: string; iconColor: string; trend?: "up" | "down" | "neutral";
 }) {
   return (
-    <div className={`relative p-5 rounded-2xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden`}>
-      <div className={`absolute top-0 right-0 w-24 h-24 rounded-full opacity-5 -translate-y-4 translate-x-4 ${color}`} />
-      <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${color} bg-opacity-10`}>
-        <Icon className={`w-5 h-5 ${color.replace("bg-", "text-")}`} />
+    <div className="relative p-5 rounded-2xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
+      <div className={`absolute top-0 right-0 w-24 h-24 rounded-full opacity-5 -translate-y-4 translate-x-4 ${iconBg}`} />
+      <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${iconBg}`}>
+        <Icon className={`w-5 h-5 ${iconColor}`} />
       </div>
       <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">{label}</p>
       <p className="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">{value}</p>
@@ -214,7 +215,7 @@ export default function FinanceView() {
 
   if (isLoading) return (
     <div className="flex flex-col items-center justify-center py-24 gap-4">
-      <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+      <div className="w-10 h-10 border-4 border-green-600 border-t-transparent rounded-full animate-spin" />
       <p className="text-gray-500 animate-pulse">Loading finance data...</p>
     </div>
   );
@@ -244,22 +245,22 @@ export default function FinanceView() {
       {/* ── Summary Cards ── */}
       <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4">
         <div className="xl:col-span-2">
-          <StatCard label="Total Income" value={fmt(summary?.totalEarned || 0)} sub={`${summary?.collectionRate || 0}% collected`} icon={TrendingUp} color="bg-green-500" trend="up" />
+          <StatCard label="Total Income" value={fmt(summary?.totalEarned || 0)} sub={`${summary?.collectionRate || 0}% collected`} icon={TrendingUp} iconBg="bg-green-100" iconColor="text-green-700" trend="up" />
         </div>
         <div className="xl:col-span-2">
-          <StatCard label="Net Profit" value={fmt(summary?.netProfit || 0)} sub="Income minus expenses" icon={PiggyBank} color={summary?.netProfit >= 0 ? "bg-blue-500" : "bg-red-500"} trend={summary?.netProfit >= 0 ? "up" : "down"} />
+          <StatCard label="Net Profit" value={fmt(summary?.netProfit || 0)} sub="Income minus expenses" icon={Banknote} iconBg={summary?.netProfit >= 0 ? "bg-emerald-100" : "bg-red-100"} iconColor={summary?.netProfit >= 0 ? "text-emerald-700" : "text-red-600"} trend={summary?.netProfit >= 0 ? "up" : "down"} />
         </div>
         <div className="xl:col-span-2">
-          <StatCard label="Outstanding" value={fmt(summary?.totalOutstanding || 0)} sub="Pending collections" icon={Wallet} color="bg-orange-500" trend="neutral" />
+          <StatCard label="Outstanding" value={fmt(summary?.totalOutstanding || 0)} sub="Pending collections" icon={Wallet} iconBg="bg-orange-100" iconColor="text-orange-600" trend="neutral" />
         </div>
         <div className="xl:col-span-2">
-          <StatCard label="Total Budget" value={fmt(summary?.totalBudget || 0)} sub="Across all projects" icon={DollarSign} color="bg-purple-500" trend="neutral" />
+          <StatCard label="Total Budget" value={fmt(summary?.totalBudget || 0)} sub="Across all projects" icon={DollarSign} iconBg="bg-purple-100" iconColor="text-purple-600" trend="neutral" />
         </div>
         <div className="xl:col-span-2">
-          <StatCard label="Total Expenses" value={fmt(summary?.totalExpenses || 0)} sub="Company costs" icon={ReceiptText} color="bg-red-500" trend="down" />
+          <StatCard label="Total Expenses" value={fmt(summary?.totalExpenses || 0)} sub="Company costs" icon={ReceiptText} iconBg="bg-red-100" iconColor="text-red-600" trend="down" />
         </div>
         <div className="xl:col-span-2">
-          <StatCard label="Total Projects" value={String(projects?.length || 0)} sub="All time" icon={TrendingDown} color="bg-indigo-500" trend="neutral" />
+          <StatCard label="Total Projects" value={String(projects?.length || 0)} sub="All time" icon={TrendingDown} iconBg="bg-teal-100" iconColor="text-teal-700" trend="neutral" />
         </div>
       </div>
 
@@ -277,7 +278,7 @@ export default function FinanceView() {
                 key={p}
                 onClick={() => setPeriod(p)}
                 className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-all capitalize ${
-                  period === p ? "bg-white dark:bg-gray-700 shadow-sm text-blue-600" : "text-gray-500 hover:text-gray-700"
+                  period === p ? "bg-white dark:bg-gray-700 shadow-sm text-green-700" : "text-gray-500 hover:text-gray-700"
                 }`}
               >
                 {p}
@@ -296,7 +297,7 @@ export default function FinanceView() {
               <Legend wrapperStyle={{ fontSize: 12 }} />
               <Bar dataKey="income"   name="Income"   fill="#22c55e" radius={[6, 6, 0, 0]} />
               <Bar dataKey="expenses" name="Expenses" fill="#ef4444" radius={[6, 6, 0, 0]} />
-              <Bar dataKey="profit"   name="Profit"   fill="#3b82f6" radius={[6, 6, 0, 0]} />
+              <Bar dataKey="profit"   name="Profit"   fill="#16a34a" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         ) : (
@@ -316,15 +317,15 @@ export default function FinanceView() {
             <AreaChart data={chartData} margin={{ top: 4, right: 4, left: -10, bottom: 0 }}>
               <defs>
                 <linearGradient id="profitGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                  <stop offset="5%" stopColor="#16a34a" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#16a34a" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
               <XAxis dataKey="period" tick={{ fontSize: 11, fill: "#9ca3af" }} />
               <YAxis tick={{ fontSize: 11, fill: "#9ca3af" }} tickFormatter={(v) => `$${v >= 1000 ? (v / 1000).toFixed(0) + "k" : v}`} />
               <Tooltip content={<CustomTooltip />} />
-              <Area type="monotone" dataKey="profit" name="Profit" stroke="#3b82f6" strokeWidth={2.5} fill="url(#profitGrad)" dot={{ r: 4, fill: "#3b82f6" }} />
+              <Area type="monotone" dataKey="profit" name="Profit" stroke="#16a34a" strokeWidth={2.5} fill="url(#profitGrad)" dot={{ r: 4, fill: "#16a34a" }} />
             </AreaChart>
           </ResponsiveContainer>
         </div>

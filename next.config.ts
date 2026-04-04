@@ -1,7 +1,27 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Compress responses with gzip — reduces JS/HTML payload size
+  compress: true,
+
+  // Cache static assets aggressively
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          { key: "X-Content-Type-Options", value: "nosniff" },
+        ],
+      },
+      {
+        // Static files (fonts, images, etc.) — cache for 1 year
+        source: "/_next/static/:path*",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;

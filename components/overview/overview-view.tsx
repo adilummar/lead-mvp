@@ -17,10 +17,10 @@ interface OverviewData { leads: Lead[]; projects: Project[]; goals: Goal[] }
 const PREVIEW = 3;
 
 const statusColor: Record<string, string> = {
-  New: "bg-blue-100 text-blue-700 border-blue-200", Contacted: "bg-purple-100 text-purple-700 border-purple-200",
+  New: "bg-green-100 text-green-700 border-green-200", Contacted: "bg-purple-100 text-purple-700 border-purple-200",
   Proposal: "bg-yellow-100 text-yellow-700 border-yellow-200", Negotiation: "bg-orange-100 text-orange-700 border-orange-200",
   Closed: "bg-green-100 text-green-700 border-green-200", Lost: "bg-red-100 text-red-700 border-red-200",
-  Planned: "bg-blue-100 text-blue-700 border-blue-200", "In-Progress": "bg-purple-100 text-purple-700 border-purple-200",
+  Planned: "bg-green-100 text-green-700 border-green-200", "In-Progress": "bg-purple-100 text-purple-700 border-purple-200",
   Testing: "bg-yellow-100 text-yellow-700 border-yellow-200", Completed: "bg-green-100 text-green-700 border-green-200",
   Maintenance: "bg-orange-100 text-orange-700 border-orange-200",
   High: "bg-red-100 text-red-700 border-red-200", Medium: "bg-yellow-100 text-yellow-700 border-yellow-200", Low: "bg-green-100 text-green-700 border-green-200",
@@ -97,8 +97,8 @@ function ScheduleButton({ task, source, sourceId }: {
           onClick={() => { setOpen(v => !v); setStep("day"); }}
           className={`inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1.5 rounded-lg border transition-all ${
             open
-              ? "bg-blue-600 text-white border-blue-600"
-              : "text-gray-500 bg-gray-50 hover:bg-blue-50 hover:text-blue-600 border-gray-200 hover:border-blue-200"
+              ? "bg-green-700 text-white border-green-700"
+              : "text-gray-500 bg-gray-50 hover:bg-green-50 hover:text-green-700 border-gray-200 hover:border-green-200"
           }`}
         >
           <CalendarClock className="w-3.5 h-3.5" />
@@ -119,9 +119,9 @@ function ScheduleButton({ task, source, sourceId }: {
                 </button>
                 <button
                   onClick={() => { setSelectedDay("Tomorrow"); setStep("priority"); }}
-                  className="flex items-center gap-3 w-full px-4 py-2.5 text-sm hover:bg-blue-50 hover:text-blue-700 transition-colors font-semibold"
+                  className="flex items-center gap-3 w-full px-4 py-2.5 text-sm hover:bg-green-50 hover:text-green-700 transition-colors font-semibold"
                 >
-                  <CalendarClock className="w-4 h-4 text-blue-500" /> Tomorrow
+                  <CalendarClock className="w-4 h-4 text-green-600" /> Tomorrow
                 </button>
               </>
             ) : (
@@ -207,7 +207,7 @@ function Section<T extends { _id: string }>({ items, renderItem }: { items: T[];
         : visible.map(item => renderItem(item))
       }
       {items.length > PREVIEW && (
-        <button onClick={() => setShowAll(v => !v)} className="w-full flex items-center justify-center gap-1.5 text-sm font-semibold text-blue-600 hover:text-blue-700 py-2 rounded-xl hover:bg-blue-50 transition-colors">
+        <button onClick={() => setShowAll(v => !v)} className="w-full flex items-center justify-center gap-1.5 text-sm font-semibold text-green-700 hover:text-green-800 py-2 rounded-xl hover:bg-green-50 transition-colors">
           {showAll ? <><ChevronUp className="w-4 h-4" /> Show less</> : <><ChevronDown className="w-4 h-4" /> Show {hidden} more</>}
         </button>
       )}
@@ -226,14 +226,14 @@ export default function OverviewView() {
   });
 
   const tabs: { key: TabType; label: string; icon: any; color: string; activeClass: string }[] = [
-    { key: "leads",    label: "Leads",    icon: Users,    color: "text-blue-600",   activeClass: "bg-blue-600 text-white shadow-md shadow-blue-200" },
+    { key: "leads",    label: "Leads",    icon: Users,    color: "text-green-600",   activeClass: "bg-green-600 text-white shadow-md shadow-green-200" },
     { key: "projects", label: "Projects", icon: Briefcase, color: "text-purple-600", activeClass: "bg-purple-600 text-white shadow-md shadow-purple-200" },
     { key: "goals",    label: "Goals",    icon: Target,   color: "text-indigo-600", activeClass: "bg-indigo-600 text-white shadow-md shadow-indigo-200" },
   ];
 
   if (isLoading) return (
     <div className="flex flex-col items-center justify-center py-24 gap-4">
-      <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+      <div className="w-10 h-10 border-4 border-green-600 border-t-transparent rounded-full animate-spin" />
       <p className="text-gray-500 animate-pulse">Loading overview...</p>
     </div>
   );
@@ -259,7 +259,7 @@ export default function OverviewView() {
           <p className="text-gray-500 text-sm sm:text-base mt-1">All items in one place. Schedule tasks to My Day.</p>
         </div>
         {totalScheduled > 0 && (
-          <a href="/todos" className="shrink-0 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 px-4 py-2.5 rounded-xl shadow-md transition-all">
+          <a href="/todos" className="shrink-0 flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 px-4 py-2.5 rounded-xl shadow-md transition-all">
             <CalendarCheck className="w-4 h-4" /> My Day ({totalScheduled})
           </a>
         )}
@@ -286,9 +286,9 @@ export default function OverviewView() {
       </div>
 
       {/* Hint */}
-      <div className="flex items-start gap-3 p-4 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800">
-        <CalendarClock className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
-        <p className="text-xs text-blue-600 dark:text-blue-400">
+      <div className="flex items-start gap-3 p-4 rounded-xl bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-800">
+        <CalendarClock className="w-4 h-4 text-green-600 shrink-0 mt-0.5" />
+        <p className="text-xs text-green-700 dark:text-green-400">
           Expand any item to see its sub-tasks. Click <strong>"Add to My Day"</strong> on a sub-task to choose the schedule and priority.
           Scheduled tasks appear in the <a href="/todos" className="underline font-bold">Master To-Do</a> list.
         </p>

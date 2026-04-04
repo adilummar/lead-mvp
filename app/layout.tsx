@@ -7,7 +7,7 @@ import { DesktopNav, MobileNav } from "@/components/ui/nav-links";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "B-BMS | B & Beyond Management System",
+  title: "B & B | B & Beyond Management System",
   description: "Internal ERP/CRM for B & Beyond",
 };
 
@@ -21,7 +21,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             {/* ── Desktop Sidebar ── */}
             <aside className="hidden md:flex w-64 shrink-0 bg-white dark:bg-gray-900 border-r border-gray-100 dark:border-gray-800 flex-col">
               <div className="h-16 flex items-center px-6 border-b border-gray-100 dark:border-gray-800">
-                <span className="font-extrabold text-xl bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">B-BMS</span>
+                <span className="font-extrabold text-xl bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">B &amp; B</span>
                 <span className="ml-2 text-xs text-gray-400 font-medium">v1.0</span>
               </div>
 
@@ -29,11 +29,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <DesktopNav />
 
               <div className="p-4 border-t border-gray-100 dark:border-gray-800">
-                <div className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center text-white text-xs font-bold shrink-0">A</div>
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center text-white text-xs font-bold shrink-0">A</div>
                   <div className="min-w-0">
                     <p className="text-xs font-semibold text-gray-800 dark:text-gray-200 truncate">Admin User</p>
-                    <p className="text-xs text-gray-500 truncate">admin@b-bms.com</p>
+                    <p className="text-xs text-gray-500 truncate">admin@bandb.com</p>
                   </div>
                 </div>
               </div>
@@ -44,8 +44,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
               {/* Mobile top header */}
               <header className="md:hidden h-14 shrink-0 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between px-4">
-                <span className="font-extrabold text-lg bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">B-BMS</span>
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center text-white text-xs font-bold">A</div>
+                <span className="font-extrabold text-lg bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">B &amp; B</span>
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center text-white text-xs font-bold">A</div>
               </header>
 
               {/* Page content */}

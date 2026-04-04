@@ -90,7 +90,7 @@ export default function LeadForm({ onSuccess, initialData, leadId }: LeadFormPro
           <Textarea placeholder="Initial context about the client..." className="rounded-xl min-h-[90px] resize-none" {...register("remarks")} />
         </div>
         <div className="pt-2">
-          <Button type="submit" disabled={mutation.isPending} className="w-full h-11 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-base shadow-md">
+          <Button type="submit" disabled={mutation.isPending} className="w-full h-11 rounded-xl bg-green-600 hover:bg-green-700 text-white font-semibold text-base shadow-md">
             {mutation.isPending ? 'Saving...' : isEdit ? 'Update Lead' : 'Save Lead'}
           </Button>
         </div>

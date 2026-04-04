@@ -64,7 +64,7 @@ function GoalForm({ onSuccess, initialData, goalId }: { onSuccess: () => void; i
           </div>
           <div className="space-y-1.5"><Label>Deadline</Label><Input type="date" className="rounded-xl h-11" {...register("deadline")} /></div>
         </div>
-        <div className="pt-2"><Button type="submit" disabled={mutation.isPending} className="w-full h-11 rounded-xl bg-blue-600 hover:bg-blue-700 font-semibold text-base">{mutation.isPending ? "Saving..." : isEdit ? "Update Goal" : "Save Goal"}</Button></div>
+        <div className="pt-2"><Button type="submit" disabled={mutation.isPending} className="w-full h-11 rounded-xl bg-green-600 hover:bg-green-700 font-semibold text-base">{mutation.isPending ? "Saving..." : isEdit ? "Update Goal" : "Save Goal"}</Button></div>
       </form>
     </>
   );
@@ -100,7 +100,7 @@ function GoalSubtaskModal({ goal }: { goal: any }) {
       <DialogHeader><DialogTitle className="text-lg sm:text-xl font-bold">📋 {goal.title}</DialogTitle></DialogHeader>
       <div className="flex gap-2">
         <Input value={taskName} onChange={(e) => setTaskName(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && taskName && addMutation.mutate()} placeholder="Add a sub-task..." className="rounded-xl flex-1 h-10" />
-        <Button onClick={() => taskName && addMutation.mutate()} className="rounded-xl h-10 bg-blue-600 text-white px-4 shrink-0"><Plus className="w-4 h-4" /></Button>
+        <Button onClick={() => taskName && addMutation.mutate()} className="rounded-xl h-10 bg-green-600 text-white px-4 shrink-0"><Plus className="w-4 h-4" /></Button>
       </div>
       <div className="space-y-2 max-h-[50vh] overflow-y-auto pr-1">
         {(goal.subtasks || []).length === 0 ? <p className="text-sm text-gray-400 text-center py-10">No sub-tasks yet.</p> : (
@@ -136,7 +136,7 @@ export default function GoalList() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["goals"] })
   });
 
-  if (isLoading) return <div className="flex flex-col items-center justify-center py-24 gap-4"><div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" /><p className="text-gray-500 animate-pulse">Loading goals...</p></div>;
+  if (isLoading) return <div className="flex flex-col items-center justify-center py-24 gap-4"><div className="w-10 h-10 border-4 border-green-600 border-t-transparent rounded-full animate-spin" /><p className="text-gray-500 animate-pulse">Loading goals...</p></div>;
   if (error) return <div className="p-8 text-center rounded-2xl border border-red-100 bg-red-50"><AlertCircle className="w-10 h-10 text-red-500 mx-auto mb-3" /><h3 className="text-base font-bold text-red-800">Connection Error</h3></div>;
 
   return (
@@ -147,7 +147,7 @@ export default function GoalList() {
           <p className="text-gray-500 text-sm sm:text-base mt-1">Set and track high-level objectives.</p>
         </div>
         <Dialog open={isFormOpen} onOpenChange={(o) => { setIsFormOpen(o); if (!o) setEditingGoal(null); }}>
-          <DialogTrigger onClick={() => { setEditingGoal(null); setIsFormOpen(true); }} className="shrink-0 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl px-4 h-10 text-sm font-semibold shadow-md inline-flex items-center gap-1.5">
+          <DialogTrigger onClick={() => { setEditingGoal(null); setIsFormOpen(true); }} className="shrink-0 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl px-4 h-10 text-sm font-semibold shadow-md inline-flex items-center gap-1.5">
             <Plus className="h-4 w-4" /><span className="hidden sm:inline">Add Goal</span><span className="sm:hidden">Add</span>
           </DialogTrigger>
           <DialogContent className="w-[calc(100%-2rem)] sm:max-w-[480px] rounded-2xl border-none shadow-2xl p-5 sm:p-6">
@@ -176,7 +176,7 @@ export default function GoalList() {
                   <h3 className="font-bold text-base sm:text-lg line-clamp-2 flex-1">{goal.title}</h3>
                   <div className="flex items-center gap-1.5 shrink-0">
                     <Badge variant="outline" className={`text-xs font-semibold rounded-full border px-2.5 ${priorityColors[goal.priority]}`}>{goal.priority}</Badge>
-                    <button onClick={() => { setEditingGoal(goal); setIsFormOpen(true); }} className="p-1.5 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors" title="Edit"><Pencil className="w-3.5 h-3.5" /></button>
+                    <button onClick={() => { setEditingGoal(goal); setIsFormOpen(true); }} className="p-1.5 rounded-lg text-gray-400 hover:text-green-700 hover:bg-green-50 transition-colors" title="Edit"><Pencil className="w-3.5 h-3.5" /></button>
                     <button onClick={() => { if (window.confirm(`Delete goal "${goal.title}"?`)) deleteMutation.mutate(goal._id); }} className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors" title="Delete"><Trash2 className="w-3.5 h-3.5" /></button>
                   </div>
                 </div>

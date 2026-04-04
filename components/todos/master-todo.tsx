@@ -5,7 +5,7 @@ import { CheckCircle2, Circle, Clock, Layers, Briefcase, Target, XCircle } from 
 import { Badge } from "@/components/ui/badge";
 
 const sourceColors: Record<string, string> = {
-  Lead: "bg-blue-100 text-blue-700", Project: "bg-purple-100 text-purple-700", Goal: "bg-indigo-100 text-indigo-700",
+  Lead: "bg-green-100 text-green-700", Project: "bg-teal-100 text-teal-700", Goal: "bg-emerald-100 text-emerald-700",
 };
 const dayBadge: Record<string, string> = {
   Today: "bg-orange-100 text-orange-700 border-orange-200",
@@ -65,7 +65,7 @@ export default function MasterTodoView() {
 
   if (isLoading) return (
     <div className="flex flex-col items-center justify-center py-24 gap-4">
-      <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+      <div className="w-10 h-10 border-4 border-green-600 border-t-transparent rounded-full animate-spin" />
       <p className="text-gray-500 animate-pulse">Loading My Day...</p>
     </div>
   );
@@ -85,12 +85,12 @@ export default function MasterTodoView() {
       </div>
 
       {/* Progress banner */}
-      <div className="p-5 sm:p-6 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg">
+      <div className="p-5 sm:p-6 rounded-2xl bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg">
         <div className="flex items-center justify-between mb-3">
           <div>
-            <p className="text-blue-200 text-xs font-medium mb-0.5">Overall Progress</p>
+            <p className="text-green-200 text-xs font-medium mb-0.5">Overall Progress</p>
             <p className="text-2xl sm:text-3xl font-extrabold">
-              {totalDone} <span className="text-lg font-medium text-blue-200">/ {totalAll} done</span>
+              {totalDone} <span className="text-lg font-medium text-green-200">/ {totalAll} done</span>
             </p>
           </div>
           <div className="text-4xl sm:text-5xl font-extrabold text-white/20">{pct}%</div>
@@ -99,7 +99,7 @@ export default function MasterTodoView() {
           <div className="bg-white h-2 rounded-full transition-all duration-500" style={{ width: `${pct}%` }} />
         </div>
         {totalAll > 0 && totalDone === totalAll && (
-          <p className="text-blue-100 text-sm font-semibold mt-3 text-center">🎉 All done! Great work!</p>
+          <p className="text-green-100 text-sm font-semibold mt-3 text-center">🎉 All done! Great work!</p>
         )}
       </div>
 
@@ -108,7 +108,7 @@ export default function MasterTodoView() {
           <CheckCircle2 className="w-14 h-14 text-gray-400 mb-4" />
           <h3 className="text-lg font-bold text-gray-700">Nothing scheduled</h3>
           <p className="text-gray-500 mt-1 text-sm text-center px-6">
-            Go to <a href="/overview" className="text-blue-600 font-semibold underline">Overview</a> and click "Add to My Day" on any sub-task.
+            Go to <a href="/overview" className="text-green-600 font-semibold underline">Overview</a> and click &quot;Add to My Day&quot; on any sub-task.
           </p>
         </div>
       )}

@@ -70,7 +70,7 @@ export default function ProjectSubtasks({ project }: { project: any }) {
       {total > 0 && (
         <div className="w-full bg-gray-100 rounded-full h-1.5">
           <div
-            className="bg-gradient-to-r from-purple-500 to-blue-500 h-1.5 rounded-full transition-all duration-500"
+            className="bg-gradient-to-r from-green-500 to-emerald-500 h-1.5 rounded-full transition-all duration-500"
             style={{ width: `${Math.round((done / total) * 100)}%` }}
           />
         </div>
@@ -99,7 +99,7 @@ export default function ProjectSubtasks({ project }: { project: any }) {
           <Button
             onClick={() => taskName.trim() && addMutation.mutate()}
             disabled={addMutation.isPending}
-            className="rounded-xl h-10 px-4 bg-blue-600 hover:bg-blue-700 text-white shrink-0"
+            className="rounded-xl h-10 px-4 bg-green-600 hover:bg-green-700 text-white shrink-0"
           >
             <Plus className="w-4 h-4" />
           </Button>

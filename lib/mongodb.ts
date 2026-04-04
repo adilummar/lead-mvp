@@ -20,7 +20,15 @@ async function dbConnect() {
       );
     }
 
-    const opts = { bufferCommands: false };
+    const opts = {
+      bufferCommands: false,
+      // ── Performance: reduce cold-start wait ──
+      serverSelectionTimeoutMS: 5000,   // fail fast if Atlas is unreachable
+      connectTimeoutMS: 10000,          // TCP handshake timeout
+      socketTimeoutMS: 45000,           // idle socket timeout
+      maxPoolSize: 10,                  // reuse connections
+      minPoolSize: 1,                   // keep at least 1 alive
+    };
 
     cached.promise = mongoose
       .connect(uri, opts)

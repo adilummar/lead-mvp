@@ -72,7 +72,7 @@ export default function LeadSubtasks({ lead }: { lead: any }) {
               <SelectItem value="Later">Later</SelectItem>
             </SelectContent>
           </Select>
-          <Button onClick={() => taskName.trim() && addMutation.mutate()} disabled={addMutation.isPending} className="rounded-xl h-10 px-4 bg-blue-600 hover:bg-blue-700 text-white shrink-0">
+          <Button onClick={() => taskName.trim() && addMutation.mutate()} disabled={addMutation.isPending} className="rounded-xl h-10 px-4 bg-green-600 hover:bg-green-700 text-white shrink-0">
             <Plus className="w-4 h-4" />
           </Button>
         </div>
