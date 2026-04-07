@@ -2,16 +2,17 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { OverviewSkeleton } from "@/components/ui/skeleton";
 import { Users, Briefcase, Target, ChevronDown, ChevronRight, ChevronUp, CheckCircle2, Circle, AlertCircle, CalendarCheck, CalendarClock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 // ── Types ──────────────────────────────────────────
 type TabType = "leads" | "projects" | "goals";
-interface SubTask { _id: string; taskName: string; isCompleted: boolean; priority: "High"|"Medium"|"Low"; assignedToDay: "Today"|"Tomorrow"|"Later"; addedToTodo: boolean }
+interface SubTask { _id: string; taskName: string; isCompleted: boolean; priority: "High"|"Medium"|"Low"; assignedToDay: "Today"|"Tomorrow"|"Later"; addedToTodo: boolean; dueDate?: string; assignedToUser?: string; }
 interface Lead { _id: string; name: string; status: string; todos: SubTask[] }
 interface Project { _id: string; title: string; status: string; tasks: SubTask[] }
 interface Goal { _id: string; title: string; priority: string; subtasks: SubTask[] }
-interface OverviewData { leads: Lead[]; projects: Project[]; goals: Goal[] }
+interface OverviewData { leads: Lead[]; projects: Project[]; goals: Goal[]; team: any[]; }
 
 // ── Constants ─────────────────────────────────────
 const PREVIEW = 3;
@@ -29,22 +30,23 @@ const statusColor: Record<string, string> = {
 const priorityDot: Record<string, string> = { High: "bg-red-500", Medium: "bg-yellow-500", Low: "bg-green-500" };
 
 // ── Schedule Button + Inline Panel ──────────────────
-function ScheduleButton({ task, source, sourceId }: {
-  task: SubTask; source: string; sourceId: string;
+function ScheduleButton({ task, source, sourceId, team }: {
+  task: SubTask; source: string; sourceId: string; team: any[];
 }) {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
-  const [step, setStep] = useState<"day"|"priority">("day");
-  const [selectedDay, setSelectedDay] = useState<"Today"|"Tomorrow">("Today");
+  const [selectedUser, setSelectedUser] = useState<string>("");
+  const [dueDate, setDueDate] = useState(new Date().toISOString().slice(0, 10));
 
-  const close = () => { setOpen(false); setStep("day"); };
+  const close = () => { setOpen(false); };
 
   const scheduleMutation = useMutation({
-    mutationFn: async ({ day, priority }: { day: "Today"|"Tomorrow"; priority: string }) => {
+    mutationFn: async ({ priority, userId }: { priority: string; userId: string; }) => {
+      const dueDateISO = new Date(dueDate + "T00:00:00").toISOString();
       const res = await fetch("/api/todos/schedule", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ source, sourceId, taskId: task._id, addedToTodo: true, assignedToDay: day, priority }),
+        body: JSON.stringify({ source, sourceId, taskId: task._id, addedToTodo: true, dueDate: dueDateISO, priority, assignedToUser: userId || undefined }),
       });
       if (!res.ok) throw new Error("Failed");
       return res.json();
@@ -72,6 +74,10 @@ function ScheduleButton({ task, source, sourceId }: {
   });
 
   if (task.addedToTodo) {
+    // Show scheduled date label
+    const dLabel = task.dueDate
+      ? new Date(task.dueDate).toLocaleDateString("en-IN", { day: "numeric", month: "short" })
+      : task.assignedToDay;
     return (
       <button
         onClick={() => unscheduleMutation.mutate()}
@@ -80,7 +86,7 @@ function ScheduleButton({ task, source, sourceId }: {
         className="inline-flex items-center gap-1 text-xs font-semibold text-green-700 bg-green-50 hover:bg-red-50 hover:text-red-600 px-2.5 py-1.5 rounded-lg border border-green-200 hover:border-red-200 transition-all shrink-0"
       >
         <CalendarCheck className="w-3.5 h-3.5" />
-        <span>{task.assignedToDay}</span>
+        <span>{dLabel}</span>
       </button>
     );
   }
@@ -94,7 +100,7 @@ function ScheduleButton({ task, source, sourceId }: {
 
       <div className="relative shrink-0 z-40">
         <button
-          onClick={() => { setOpen(v => !v); setStep("day"); }}
+          onClick={() => { setOpen(v => !v); }}
           className={`inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1.5 rounded-lg border transition-all ${
             open
               ? "bg-green-700 text-white border-green-700"
@@ -107,44 +113,39 @@ function ScheduleButton({ task, source, sourceId }: {
         </button>
 
         {open && (
-          <div className="absolute right-0 top-full mt-2 z-50 bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-800 min-w-[190px] py-1">
-            {step === "day" ? (
-              <>
-                <p className="text-[10px] font-bold text-gray-400 px-4 pt-2.5 pb-1 uppercase tracking-widest">Schedule for</p>
-                <button
-                  onClick={() => { setSelectedDay("Today"); setStep("priority"); }}
-                  className="flex items-center gap-3 w-full px-4 py-2.5 text-sm hover:bg-orange-50 hover:text-orange-700 transition-colors font-semibold"
-                >
-                  <CalendarCheck className="w-4 h-4 text-orange-500" /> Today
-                </button>
-                <button
-                  onClick={() => { setSelectedDay("Tomorrow"); setStep("priority"); }}
-                  className="flex items-center gap-3 w-full px-4 py-2.5 text-sm hover:bg-green-50 hover:text-green-700 transition-colors font-semibold"
-                >
-                  <CalendarClock className="w-4 h-4 text-green-600" /> Tomorrow
-                </button>
-              </>
-            ) : (
-              <>
-                <p className="text-[10px] font-bold text-gray-400 px-4 pt-2.5 pb-1 uppercase tracking-widest">Set Priority</p>
-                {(["High","Medium","Low"] as const).map(p => (
-                  <button
-                    key={p}
-                    onClick={() => scheduleMutation.mutate({ day: selectedDay, priority: p })}
-                    disabled={scheduleMutation.isPending}
-                    className="flex items-center gap-3 w-full px-4 py-2.5 text-sm font-semibold hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors disabled:opacity-50"
-                  >
-                    <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${priorityDot[p]}`} />
-                    {scheduleMutation.isPending ? "Saving..." : p}
-                  </button>
-                ))}
-                <div className="border-t border-gray-100 dark:border-gray-800 mt-1">
-                  <button onClick={() => setStep("day")} className="flex items-center gap-2 w-full px-4 py-2 text-xs text-gray-400 hover:text-gray-600 font-medium">
-                    ← Back
-                  </button>
-                </div>
-              </>
-            )}
+          <div className="absolute right-0 top-full mt-2 z-50 bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-800 min-w-[210px] py-1">
+            <p className="text-[10px] font-bold text-gray-400 px-4 pt-2.5 pb-1 uppercase tracking-widest">Schedule for date</p>
+            <div className="px-4 py-2">
+              <input
+                type="date"
+                value={dueDate}
+                onChange={e => setDueDate(e.target.value)}
+                className="w-full text-sm rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 p-1.5 focus:outline-none focus:border-green-500"
+              />
+            </div>
+            <div className="border-t border-gray-100 dark:border-gray-800 px-4 py-2">
+              <p className="text-[10px] font-bold text-gray-400 pb-1 uppercase tracking-widest">Assign Team</p>
+              <select
+                value={selectedUser}
+                onChange={e => setSelectedUser(e.target.value)}
+                className="w-full text-sm font-semibold bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-1.5 focus:outline-none focus:border-green-500"
+              >
+                <option value="">Myself</option>
+                {team.map(u => <option key={u._id} value={u._id}>{u.name}</option>)}
+              </select>
+            </div>
+            <p className="text-[10px] font-bold text-gray-400 px-4 pt-1 pb-1 uppercase tracking-widest">Set Priority</p>
+            {(["High","Medium","Low"] as const).map(p => (
+              <button
+                key={p}
+                onClick={() => scheduleMutation.mutate({ priority: p, userId: selectedUser })}
+                disabled={scheduleMutation.isPending || !dueDate}
+                className="flex items-center gap-3 w-full px-4 py-2.5 text-sm font-semibold hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors disabled:opacity-50"
+              >
+                <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${priorityDot[p]}`} />
+                {scheduleMutation.isPending ? "Saving..." : p}
+              </button>
+            ))}
           </div>
         )}
       </div>
@@ -153,21 +154,70 @@ function ScheduleButton({ task, source, sourceId }: {
 }
 
 // ── Sub-task row ────────────────────────────────────
-function TaskRow({ task, source, sourceId }: { task: SubTask; source: string; sourceId: string }) {
+function TaskRow({ task, source, sourceId, team }: { task: SubTask; source: string; sourceId: string; team: any[]; }) {
+  const assignedUserName = task.assignedToUser ? team.find(u => u._id === task.assignedToUser)?.name : null;
+
   return (
     <div className={`flex items-center gap-3 px-3 py-2.5 rounded-xl border transition-colors ${task.isCompleted ? "bg-gray-50 border-gray-100 opacity-60" : "border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900"}`}>
       {task.isCompleted
         ? <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" />
         : <Circle className="w-4 h-4 text-gray-300 shrink-0" />}
-      <p className={`text-sm font-medium flex-1 min-w-0 truncate ${task.isCompleted ? "line-through text-gray-400" : "text-gray-800 dark:text-gray-100"}`}>{task.taskName}</p>
-      <ScheduleButton task={task} source={source} sourceId={sourceId} />
+      <div className="flex-1 min-w-0 flex flex-col">
+        <p className={`text-sm font-medium truncate ${task.isCompleted ? "line-through text-gray-400" : "text-gray-800 dark:text-gray-100"}`}>{task.taskName}</p>
+        {assignedUserName && <span className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">👤 {assignedUserName}</span>}
+      </div>
+      <ScheduleButton task={task} source={source} sourceId={sourceId} team={team} />
+    </div>
+  );
+}
+
+// ── Add Subtask Row ─────────────────────────────────
+function AddSubtaskRow({ source, sourceId }: { source: string; sourceId: string }) {
+  const queryClient = useQueryClient();
+  const [taskName, setTaskName] = useState("");
+  const mutation = useMutation({
+    mutationFn: async (name: string) => {
+      const res = await fetch("/api/overview/subtask", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ source, sourceId, taskName: name })
+      });
+      if (!res.ok) throw new Error("Failed");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["overview"] });
+      setTaskName("");
+    }
+  });
+
+  return (
+    <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-dashed border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/50 transition-colors">
+      <Circle className="w-4 h-4 text-gray-300 shrink-0" />
+      <input
+        type="text"
+        placeholder="Add a new subtask..."
+        value={taskName}
+        onChange={e => setTaskName(e.target.value)}
+        onKeyDown={e => { if (e.key === "Enter" && taskName.trim()) mutation.mutate(taskName.trim()); }}
+        disabled={mutation.isPending}
+        className="text-sm font-medium flex-1 min-w-0 bg-transparent border-none focus:outline-none focus:ring-0 p-0 placeholder-gray-400"
+      />
+      {taskName.trim() && (
+        <button
+          onClick={() => mutation.mutate(taskName.trim())}
+          disabled={mutation.isPending}
+          className="text-xs font-semibold text-white bg-green-600 hover:bg-green-700 px-2 py-1 rounded-md shrink-0 transition-colors"
+        >
+          {mutation.isPending ? "Adding..." : "Add"}
+        </button>
+      )}
     </div>
   );
 }
 
 // ── Expandable item card ────────────────────────────
-function ItemCard({ title, badge, subtasks, source, sourceId, taskField }: {
-  title: string; badge: string; subtasks: SubTask[]; source: string; sourceId: string; taskField: string;
+function ItemCard({ title, badge, subtasks, source, sourceId, taskField, team }: {
+  title: string; badge: string; subtasks: SubTask[]; source: string; sourceId: string; taskField: string; team: any[];
 }) {
   const [expanded, setExpanded] = useState(false);
   const scheduledCount = subtasks.filter(t => t.addedToTodo).length;
@@ -185,9 +235,10 @@ function ItemCard({ title, badge, subtasks, source, sourceId, taskField }: {
       {expanded && (
         <div className="border-t border-gray-50 dark:border-gray-800 px-4 pb-4 pt-3 space-y-2">
           {subtasks.length === 0
-            ? <p className="text-sm text-gray-400 text-center py-6">No sub-tasks yet.</p>
-            : subtasks.map(task => <TaskRow key={task._id} task={task} source={source} sourceId={sourceId} />)
+            ? <p className="text-sm text-gray-400 text-center py-5">No sub-tasks yet.</p>
+            : subtasks.map(task => <TaskRow key={task._id} task={task} source={source} sourceId={sourceId} team={team} />)
           }
+          <AddSubtaskRow source={source} sourceId={sourceId} />
         </div>
       )}
     </div>
@@ -221,7 +272,16 @@ export default function OverviewView() {
 
   const { data, isLoading, error } = useQuery<OverviewData>({
     queryKey: ["overview"],
-    queryFn: async () => { const res = await fetch("/api/overview"); if (!res.ok) throw new Error("Failed"); return res.json(); },
+    queryFn: async () => {
+      const [overviewRes, teamRes] = await Promise.all([
+        fetch("/api/overview"),
+        fetch("/api/team")
+      ]);
+      if (!overviewRes.ok || !teamRes.ok) throw new Error("Failed");
+      const overviewData = await overviewRes.json();
+      const teamData = await teamRes.json();
+      return { ...overviewData, team: teamData };
+    },
     retry: 1, refetchInterval: 30000,
   });
 
@@ -231,12 +291,7 @@ export default function OverviewView() {
     { key: "goals",    label: "Goals",    icon: Target,   color: "text-indigo-600", activeClass: "bg-indigo-600 text-white shadow-md shadow-indigo-200" },
   ];
 
-  if (isLoading) return (
-    <div className="flex flex-col items-center justify-center py-24 gap-4">
-      <div className="w-10 h-10 border-4 border-green-600 border-t-transparent rounded-full animate-spin" />
-      <p className="text-gray-500 animate-pulse">Loading overview...</p>
-    </div>
-  );
+  if (isLoading) return <OverviewSkeleton />;
 
   if (error) return (
     <div className="p-8 text-center rounded-2xl border border-red-100 bg-red-50">
@@ -289,7 +344,7 @@ export default function OverviewView() {
       <div className="flex items-start gap-3 p-4 rounded-xl bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-800">
         <CalendarClock className="w-4 h-4 text-green-600 shrink-0 mt-0.5" />
         <p className="text-xs text-green-700 dark:text-green-400">
-          Expand any item to see its sub-tasks. Click <strong>"Add to My Day"</strong> on a sub-task to choose the schedule and priority.
+          Expand any item to create or view sub-tasks. Click <strong>"Add to My Day"</strong> on a sub-task to choose the assignable team member and priority.
           Scheduled tasks appear in the <a href="/todos" className="underline font-bold">Master To-Do</a> list.
         </p>
       </div>
@@ -300,7 +355,7 @@ export default function OverviewView() {
           items={leads}
           renderItem={(lead) => (
             <ItemCard key={lead._id} title={lead.name} badge={lead.status} subtasks={lead.todos}
-              source="Lead" sourceId={lead._id} taskField="todos" />
+              source="Lead" sourceId={lead._id} taskField="todos" team={data?.team || []} />
           )}
         />
       )}
@@ -309,7 +364,7 @@ export default function OverviewView() {
           items={projects}
           renderItem={(project) => (
             <ItemCard key={project._id} title={project.title} badge={project.status} subtasks={project.tasks}
-              source="Project" sourceId={project._id} taskField="tasks" />
+              source="Project" sourceId={project._id} taskField="tasks" team={data?.team || []} />
           )}
         />
       )}
@@ -318,7 +373,7 @@ export default function OverviewView() {
           items={goals}
           renderItem={(goal) => (
             <ItemCard key={goal._id} title={goal.title} badge={goal.priority} subtasks={goal.subtasks}
-              source="Goal" sourceId={goal._id} taskField="subtasks" />
+              source="Goal" sourceId={goal._id} taskField="subtasks" team={data?.team || []} />
           )}
         />
       )}

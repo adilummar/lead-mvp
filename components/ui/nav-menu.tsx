@@ -4,8 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
 import {
-  LayoutDashboard, Users, Briefcase, Target,
-  CheckSquare, Layers, DollarSign,
+  LayoutDashboard, Users, UserCircle, Briefcase, Target,
+  CheckSquare, Layers, DollarSign, BarChart3,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -13,10 +13,12 @@ const allNavItems = [
   { href: "/",         label: "Dashboard", icon: LayoutDashboard },
   { href: "/overview", label: "Overview",  icon: Layers },
   { href: "/leads",    label: "Leads",     icon: Users },
+  { href: "/team",     label: "Team",      icon: UserCircle },
   { href: "/projects", label: "Projects",  icon: Briefcase },
   { href: "/goals",    label: "Goals",     icon: Target },
   { href: "/finance",  label: "Finance",   icon: DollarSign },
   { href: "/todos",    label: "My Day",    icon: CheckSquare },
+  { href: "/reports",  label: "Reports",   icon: BarChart3 },
 ];
 
 function isActive(pathname: string, href: string) {

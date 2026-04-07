@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import QueryProvider from "@/components/providers/QueryProvider";
-import { DesktopNav, MobileNav } from "@/components/ui/nav-links";
+import { ToastProvider } from "@/components/providers/toast-context";
+import Toaster from "@/components/ui/toaster";
+import { DesktopNav, MobileNav } from "@/components/ui/nav-menu";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -16,6 +18,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body className={`${inter.className} bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 antialiased`}>
         <QueryProvider>
+          <ToastProvider>
           <div className="flex h-screen overflow-hidden">
 
             {/* ── Desktop Sidebar ── */}
@@ -58,6 +61,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
             </div>
           </div>
+          <Toaster />
+          </ToastProvider>
         </QueryProvider>
       </body>
     </html>

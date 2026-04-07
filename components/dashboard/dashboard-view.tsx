@@ -1,10 +1,13 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from "recharts";
-import { Users, Briefcase, TrendingUp, DollarSign, Target, CheckCircle2, AlertCircle } from "lucide-react";
+import { Users, Briefcase, TrendingUp, DollarSign, Target, CheckCircle2, AlertCircle, Trophy } from "lucide-react";
+import { DashboardSkeleton } from "@/components/ui/skeleton";
+import Confetti from "@/components/ui/confetti";
 
 function StatCard({ icon: Icon, label, value, sub, color }: any) {
   return (
@@ -24,6 +27,19 @@ function StatCard({ icon: Icon, label, value, sub, color }: any) {
 }
 
 export default function DashboardView() {
+  const [celebrate, setCelebrate] = useState<string | null>(null);
+  const [showBanner, setShowBanner] = useState(false);
+
+  // Check for a freshly-closed lead on every dashboard visit
+  useEffect(() => {
+    const name = sessionStorage.getItem("celebrate_closed");
+    if (name) {
+      sessionStorage.removeItem("celebrate_closed");
+      setCelebrate(name);
+      setShowBanner(true);
+    }
+  }, []);
+
   const { data: stats, isLoading, error } = useQuery({
     queryKey: ["stats"],
     queryFn: async () => {
@@ -47,12 +63,7 @@ export default function DashboardView() {
 
   const todayTodos = (todos || []).filter((t: any) => t.assignedToDay === "Today" && !t.isCompleted);
 
-  if (isLoading) return (
-    <div className="flex flex-col items-center justify-center py-24 gap-4">
-      <div className="w-10 h-10 border-4 border-green-600 border-t-transparent rounded-full animate-spin" />
-      <p className="text-gray-500 animate-pulse">Loading dashboard...</p>
-    </div>
-  );
+  if (isLoading) return <DashboardSkeleton />;
 
   if (error) return (
     <div className="p-8 text-center rounded-2xl border border-red-100 bg-red-50 dark:bg-red-900/20">
@@ -64,6 +75,42 @@ export default function DashboardView() {
 
   return (
     <div className="space-y-5 sm:space-y-8">
+
+      {/* 🎉 Confetti burst */}
+      {celebrate && (
+        <Confetti onDone={() => setCelebrate(null)} />
+      )}
+
+      {/* 🏆 Victory banner */}
+      {showBanner && (
+        <div
+          className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-green-600 via-emerald-500 to-teal-500 p-5 sm:p-6 shadow-xl animate-[slideDown_0.5s_ease-out]"
+        >
+          {/* Decorative circles */}
+          <div className="absolute -top-6 -right-6 w-32 h-32 bg-white/10 rounded-full" />
+          <div className="absolute -bottom-4 -left-4 w-20 h-20 bg-white/10 rounded-full" />
+
+          <div className="relative flex items-center gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center shrink-0 text-3xl animate-bounce">
+              🏆
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-white/80 text-xs font-semibold uppercase tracking-widest mb-0.5">Deal Closed!</p>
+              <h2 className="text-white font-extrabold text-xl sm:text-2xl truncate">
+                {celebrate || "A lead"} is now a client! 🎉
+              </h2>
+              <p className="text-green-100 text-sm mt-1">Amazing work! Keep the momentum going.</p>
+            </div>
+            <button
+              onClick={() => setShowBanner(false)}
+              className="shrink-0 w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-white transition-colors"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
+
       <div>
         <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight mb-1">Dashboard</h1>
         <p className="text-gray-500 text-sm sm:text-base">Your business at a glance.</p>

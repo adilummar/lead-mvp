@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import dbConnect from "@/lib/mongodb";
 import Lead from "@/models/Lead";
 import User from "@/models/User";
+import ActivityLog from "@/models/ActivityLog";
 
 export async function GET() {
   try {
@@ -33,6 +34,17 @@ export async function POST(req: Request) {
     };
 
     const newLead = await Lead.create(dataToSave);
+
+    // Log activity
+    await ActivityLog.create({
+      entityType: 'Lead',
+      entityId: newLead._id,
+      entityName: newLead.name,
+      action: 'lead_created',
+      message: `Lead "${newLead.name}" was added to the system`,
+      meta: { contactNumber: newLead.contactNumber, leadSource: newLead.leadSource, status: newLead.status },
+    });
+
     return NextResponse.json(newLead, { status: 201 });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });

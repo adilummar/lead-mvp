@@ -4,8 +4,9 @@ const nextConfig: NextConfig = {
   // Compress responses with gzip — reduces JS/HTML payload size
   compress: true,
 
-  // Cache static assets aggressively
   async headers() {
+    if (process.env.NODE_ENV !== "production") return [];
+    
     return [
       {
         source: "/:path*",

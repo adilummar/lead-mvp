@@ -2,6 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { CardListSkeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -13,6 +14,32 @@ import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus, Target, Calendar, AlertCircle, FolderOpen, ListTodo, CheckCircle2, Circle, Pencil, Trash2 } from "lucide-react";
+
+function getDayLabel(dueDate?: string | null): string {
+  if (!dueDate) return "";
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const tomorrow = new Date(today); tomorrow.setDate(tomorrow.getDate() + 1);
+  const d = new Date(dueDate);
+  const due = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  if (due < today) return "⚠ Overdue";
+  if (due.getTime() === today.getTime()) return "Today";
+  if (due.getTime() === tomorrow.getTime()) return "Tomorrow";
+  return d.toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+}
+
+function getDayLabelClass(dueDate?: string | null): string {
+  if (!dueDate) return "text-gray-400";
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const d = new Date(dueDate);
+  const due = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  if (due < today) return "text-red-500 font-semibold";
+  if (due.getTime() === today.getTime()) return "text-orange-600 font-semibold";
+  return "text-gray-400";
+}
+import ConfirmDialog from "@/components/ui/confirm-dialog";
+import { useToast } from "@/components/providers/toast-context";
 
 const goalSchema = z.object({
   title: z.string().min(2, "Title is required"),
@@ -72,7 +99,10 @@ function GoalForm({ onSuccess, initialData, goalId }: { onSuccess: () => void; i
 
 function GoalSubtaskModal({ goal }: { goal: any }) {
   const queryClient = useQueryClient();
+  const { toast } = useToast();
   const [taskName, setTaskName] = useState("");
+  const [dueDate, setDueDate] = useState(new Date().toISOString().slice(0, 10));
+  const [confirmSubIdx, setConfirmSubIdx] = useState<number | null>(null);
 
   const updateSubtasks = async (subtasks: any[]) => {
     const res = await fetch(`/api/goals/${goal._id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ subtasks }) });
@@ -81,25 +111,45 @@ function GoalSubtaskModal({ goal }: { goal: any }) {
   };
 
   const addMutation = useMutation({
-    mutationFn: async () => updateSubtasks([...(goal.subtasks || []), { taskName, isCompleted: false, priority: "Medium", assignedToDay: "Later", addedToTodo: false }]),
+    mutationFn: async () => {
+      const dueDateISO = dueDate ? new Date(dueDate + "T00:00:00").toISOString() : undefined;
+      const label = getDayLabel(dueDateISO);
+      const assignedToDay = label === "Today" ? "Today" : label === "Tomorrow" ? "Tomorrow" : "Later";
+      return updateSubtasks([...(goal.subtasks || []), {
+        taskName, isCompleted: false, priority: "Medium",
+        assignedToDay, dueDate: dueDateISO,
+        createdDate: new Date().toISOString(), addedToTodo: false,
+      }]);
+    },
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["goals"] }); setTaskName(""); }
   });
 
   const deleteMutation = useMutation({
     mutationFn: async (idx: number) => updateSubtasks(goal.subtasks.filter((_: any, i: number) => i !== idx)),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["goals"] })
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["goals"] }); toast.success("Task removed"); }
   });
 
   const toggleMutation = useMutation({
-    mutationFn: async (idx: number) => updateSubtasks(goal.subtasks.map((t: any, i: number) => i === idx ? { ...t, isCompleted: !t.isCompleted } : t)),
+    mutationFn: async (idx: number) => {
+      const t = goal.subtasks[idx];
+      const willComplete = !t.isCompleted;
+      return updateSubtasks(goal.subtasks.map((st: any, i: number) =>
+        i === idx ? { ...st, isCompleted: willComplete, completedAt: willComplete ? new Date().toISOString() : undefined } : st
+      ));
+    },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["goals"] })
   });
 
   return (
     <div className="space-y-4">
       <DialogHeader><DialogTitle className="text-lg sm:text-xl font-bold">📋 {goal.title}</DialogTitle></DialogHeader>
-      <div className="flex gap-2">
-        <Input value={taskName} onChange={(e) => setTaskName(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && taskName && addMutation.mutate()} placeholder="Add a sub-task..." className="rounded-xl flex-1 h-10" />
+      <div className="flex gap-2 flex-wrap">
+        <Input value={taskName} onChange={(e) => setTaskName(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && taskName && addMutation.mutate()} placeholder="Add a sub-task..." className="rounded-xl flex-1 h-10 min-w-[140px]" />
+        <div className="relative flex items-center">
+          <Calendar className="w-4 h-4 text-gray-400 absolute left-2.5 pointer-events-none" />
+          <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)}
+            className="h-10 pl-8 pr-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 focus:outline-none focus:border-green-500 w-[150px]" />
+        </div>
         <Button onClick={() => taskName && addMutation.mutate()} className="rounded-xl h-10 bg-green-600 text-white px-4 shrink-0"><Plus className="w-4 h-4" /></Button>
       </div>
       <div className="space-y-2 max-h-[50vh] overflow-y-auto pr-1">
@@ -109,13 +159,29 @@ function GoalSubtaskModal({ goal }: { goal: any }) {
               <button onClick={() => toggleMutation.mutate(idx)} className="shrink-0">
                 {t.isCompleted ? <CheckCircle2 className="w-5 h-5 text-green-500" /> : <Circle className="w-5 h-5 text-gray-300 hover:text-gray-400 transition-colors" />}
               </button>
-              <span className={`text-sm font-medium flex-1 truncate ${t.isCompleted ? "line-through text-gray-400" : "text-gray-800 dark:text-gray-200"}`}>{t.taskName}</span>
-              {t.addedToTodo && <span className="text-xs text-green-600 font-semibold shrink-0">{t.assignedToDay}</span>}
-              <button onClick={() => { if (window.confirm("Delete this task?")) deleteMutation.mutate(idx); }} className="shrink-0 p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"><Trash2 className="w-4 h-4" /></button>
+              <div className="flex-1 min-w-0">
+                <span className={`text-sm font-medium block truncate ${t.isCompleted ? "line-through text-gray-400" : "text-gray-800 dark:text-gray-200"}`}>{t.taskName}</span>
+                <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                  {t.dueDate && <span className={`text-xs ${getDayLabelClass(t.dueDate)}`}>{getDayLabel(t.dueDate)}</span>}
+                  {t.addedToTodo && <span className="text-[10px] text-green-600 font-semibold bg-green-50 px-1.5 py-0.5 rounded">In My Day</span>}
+                  {t.completedAt && <span className="text-[10px] text-green-600">✓ Done {new Date(t.completedAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}</span>}
+                </div>
+              </div>
+              <button onClick={() => setConfirmSubIdx(idx)} className="shrink-0 p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"><Trash2 className="w-4 h-4" /></button>
             </div>
           ))
         )}
       </div>
+
+      <ConfirmDialog
+        open={confirmSubIdx !== null}
+        onCancel={() => setConfirmSubIdx(null)}
+        onConfirm={() => { if (confirmSubIdx !== null) deleteMutation.mutate(confirmSubIdx); setConfirmSubIdx(null); }}
+        title="Delete this task?"
+        description="This task will be permanently removed."
+        confirmText="Delete"
+        variant="destructive"
+      />
     </div>
   );
 }
@@ -123,7 +189,9 @@ function GoalSubtaskModal({ goal }: { goal: any }) {
 export default function GoalList() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingGoal, setEditingGoal] = useState<any | null>(null);
+  const [confirmGoal, setConfirmGoal] = useState<any | null>(null);
   const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   const { data: goals, isLoading, error } = useQuery({
     queryKey: ["goals"],
@@ -133,10 +201,10 @@ export default function GoalList() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => { const res = await fetch(`/api/goals/${id}`, { method: "DELETE" }); if (!res.ok) throw new Error("Failed"); },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["goals"] })
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["goals"] }); toast.success("Goal deleted"); }
   });
 
-  if (isLoading) return <div className="flex flex-col items-center justify-center py-24 gap-4"><div className="w-10 h-10 border-4 border-green-600 border-t-transparent rounded-full animate-spin" /><p className="text-gray-500 animate-pulse">Loading goals...</p></div>;
+  if (isLoading) return <CardListSkeleton count={4} />;
   if (error) return <div className="p-8 text-center rounded-2xl border border-red-100 bg-red-50"><AlertCircle className="w-10 h-10 text-red-500 mx-auto mb-3" /><h3 className="text-base font-bold text-red-800">Connection Error</h3></div>;
 
   return (
@@ -177,7 +245,7 @@ export default function GoalList() {
                   <div className="flex items-center gap-1.5 shrink-0">
                     <Badge variant="outline" className={`text-xs font-semibold rounded-full border px-2.5 ${priorityColors[goal.priority]}`}>{goal.priority}</Badge>
                     <button onClick={() => { setEditingGoal(goal); setIsFormOpen(true); }} className="p-1.5 rounded-lg text-gray-400 hover:text-green-700 hover:bg-green-50 transition-colors" title="Edit"><Pencil className="w-3.5 h-3.5" /></button>
-                    <button onClick={() => { if (window.confirm(`Delete goal "${goal.title}"?`)) deleteMutation.mutate(goal._id); }} className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors" title="Delete"><Trash2 className="w-3.5 h-3.5" /></button>
+                    <button onClick={() => setConfirmGoal(goal)} className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors" title="Delete"><Trash2 className="w-3.5 h-3.5" /></button>
                   </div>
                 </div>
                 {goal.description && <p className="text-sm text-gray-500 mb-3 line-clamp-2">{goal.description}</p>}
@@ -201,6 +269,16 @@ export default function GoalList() {
           })}
         </div>
       )}
+
+      <ConfirmDialog
+        open={!!confirmGoal}
+        onCancel={() => setConfirmGoal(null)}
+        onConfirm={() => { deleteMutation.mutate(confirmGoal._id); setConfirmGoal(null); }}
+        title={`Delete "${confirmGoal?.title}"?`}
+        description="This goal and all its sub-tasks will be permanently removed."
+        confirmText="Delete Goal"
+        variant="destructive"
+      />
     </div>
   );
 }

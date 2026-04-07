@@ -13,6 +13,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { FinanceSkeleton } from "@/components/ui/skeleton";
+import ConfirmDialog from "@/components/ui/confirm-dialog";
+import { useToast } from "@/components/providers/toast-context";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(n);
@@ -125,7 +128,9 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 // ── Project Expense Row ────────────────────────────────
 function ProjectFinanceRow({ p }: { p: any }) {
   const queryClient = useQueryClient();
+  const { toast } = useToast();
   const [expanded, setExpanded] = useState(false);
+  const [confirmExpIdx, setConfirmExpIdx] = useState<number | null>(null);
   const paidPct = p.totalBudget > 0 ? Math.round((p.amountPaid / p.totalBudget) * 100) : 0;
 
   const deleteExpense = useMutation({
@@ -137,7 +142,7 @@ function ProjectFinanceRow({ p }: { p: any }) {
       });
       if (!res.ok) throw new Error("Failed");
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["finance"] }),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["finance"] }); toast.success("Expense removed"); },
   });
 
   return (
@@ -182,7 +187,7 @@ function ProjectFinanceRow({ p }: { p: any }) {
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-bold text-red-600">{fmt(exp.amount)}</span>
                     <button
-                      onClick={() => { if (window.confirm(`Remove expense "${exp.desc}"?`)) deleteExpense.mutate(idx); }}
+                      onClick={() => setConfirmExpIdx(idx)}
                       className="p-1 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-100 transition-colors"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -194,6 +199,16 @@ function ProjectFinanceRow({ p }: { p: any }) {
           )}
         </div>
       )}
+
+      <ConfirmDialog
+        open={confirmExpIdx !== null}
+        onCancel={() => setConfirmExpIdx(null)}
+        onConfirm={() => { if (confirmExpIdx !== null) deleteExpense.mutate(confirmExpIdx); setConfirmExpIdx(null); }}
+        title="Remove this expense?"
+        description="This expense record will be permanently deleted."
+        confirmText="Remove"
+        variant="destructive"
+      />
     </div>
   );
 }
@@ -213,12 +228,7 @@ export default function FinanceView() {
     refetchInterval: 60000,
   });
 
-  if (isLoading) return (
-    <div className="flex flex-col items-center justify-center py-24 gap-4">
-      <div className="w-10 h-10 border-4 border-green-600 border-t-transparent rounded-full animate-spin" />
-      <p className="text-gray-500 animate-pulse">Loading finance data...</p>
-    </div>
-  );
+  if (isLoading) return <FinanceSkeleton />;
 
   if (error) return (
     <div className="p-8 text-center rounded-2xl border border-red-100 bg-red-50">

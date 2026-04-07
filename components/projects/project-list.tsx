@@ -2,6 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { CardListSkeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,8 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus, DollarSign, TrendingUp, AlertCircle, FolderOpen, Clock, Pencil, Trash2, ListTodo } from "lucide-react";
 import ProjectSubtasks from "./project-subtasks";
+import ConfirmDialog from "@/components/ui/confirm-dialog";
+import { useToast } from "@/components/providers/toast-context";
 
 const projectSchema = z.object({
   title: z.string().min(2, "Title is required"),
@@ -40,6 +43,7 @@ const paymentColors: Record<string, string> = {
 
 function ProjectForm({ onSuccess, initialData, projectId }: { onSuccess: () => void; initialData?: Partial<ProjectFormData>; projectId?: string }) {
   const queryClient = useQueryClient();
+  const { toast } = useToast();
   const isEdit = !!projectId;
   const { register, handleSubmit, control, formState: { errors } } = useForm<ProjectFormData>({
     resolver: zodResolver(projectSchema),
@@ -60,7 +64,7 @@ function ProjectForm({ onSuccess, initialData, projectId }: { onSuccess: () => v
       }
       return res.json();
     },
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["projects"] }); onSuccess(); }
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["projects"] }); toast.success("Project saved!"); onSuccess(); }
   });
 
   return (
@@ -114,7 +118,9 @@ function ProjectForm({ onSuccess, initialData, projectId }: { onSuccess: () => v
 export default function ProjectList() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<any | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<any | null>(null);
   const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   const { data: projects, isLoading, error } = useQuery({
     queryKey: ["projects"],
@@ -124,10 +130,10 @@ export default function ProjectList() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => { const res = await fetch(`/api/projects/${id}`, { method: "DELETE" }); if (!res.ok) throw new Error("Failed"); },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["projects"] })
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["projects"] }); toast.success("Project deleted"); }
   });
 
-  if (isLoading) return <div className="flex flex-col items-center justify-center py-24 gap-4"><div className="w-10 h-10 border-4 border-green-600 border-t-transparent rounded-full animate-spin" /><p className="text-gray-500 animate-pulse">Loading projects...</p></div>;
+  if (isLoading) return <CardListSkeleton />;
   if (error) return <div className="p-8 text-center rounded-2xl border border-red-100 bg-red-50"><AlertCircle className="w-10 h-10 text-red-500 mx-auto mb-3" /><h3 className="text-base font-bold text-red-800">Connection Error</h3><p className="text-sm text-red-600">Restart npm run dev.</p></div>;
 
   return (
@@ -191,7 +197,7 @@ export default function ProjectList() {
                       </DialogContent>
                     </Dialog>
                     <button onClick={() => { setEditingProject(p); setIsFormOpen(true); }} className="p-1.5 rounded-lg text-gray-400 hover:text-green-700 hover:bg-green-50 transition-colors" title="Edit"><Pencil className="w-4 h-4" /></button>
-                    <button onClick={() => { if (window.confirm(`Delete project "${p.title}"?`)) deleteMutation.mutate(p._id); }} className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors" title="Delete"><Trash2 className="w-4 h-4" /></button>
+                    <button onClick={() => setConfirmDelete(p)} className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors" title="Delete"><Trash2 className="w-4 h-4" /></button>
                   </div>
                 </div>
               </div>
@@ -199,6 +205,16 @@ export default function ProjectList() {
           })}
         </div>
       )}
+
+      <ConfirmDialog
+        open={!!confirmDelete}
+        onCancel={() => setConfirmDelete(null)}
+        onConfirm={() => { deleteMutation.mutate(confirmDelete._id); setConfirmDelete(null); }}
+        title={`Delete "${confirmDelete?.title}"?`}
+        description="This project and all its data will be permanently removed."
+        confirmText="Delete Project"
+        variant="destructive"
+      />
     </div>
   );
 }
